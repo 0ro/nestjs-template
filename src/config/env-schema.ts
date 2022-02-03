@@ -3,6 +3,7 @@ import * as Joi from 'joi';
 export type Schema = {
   NODE_ENV: string;
   PORT: number;
+  API_PREFIX: string;
   AWS: {
     accessKeyId: string;
     secretAccessKey: string;
@@ -40,6 +41,7 @@ const schema = Joi.object<Schema, true>({
     .valid('development', 'production', 'test')
     .default('development'),
   PORT: Joi.number().default(3000),
+  API_PREFIX: Joi.string().default('api'),
   AWS: JoiCustom.object({
     accessKeyId: Joi.string().required(),
     secretAccessKey: Joi.string().required(),

@@ -40,7 +40,7 @@ export class S3Service {
     const params: S3.PutObjectRequest = {
       Bucket: bucket,
       Key: `${randomUUID()}-${fileName}`,
-      Body: body,
+      Body: body.buffer,
       ACL: 'private',
       CacheControl: 'max-age=31536000',
     };
@@ -55,11 +55,16 @@ export class S3Service {
   read(key: string) {
     const bucket = this.s3Configuration.bucket;
 
-    const params: S3.GetObjectRequest = {
+    const params = {
       Bucket: bucket,
       Key: key,
+      Expires: 604800, // 1 week
     };
 
-    return this.s3.getObject(params).promise();
+    const url = this.s3.getSignedUrl('getObject', params);
+
+    this.logger.log(`File url: ${url}`);
+
+    return url;
   }
 }

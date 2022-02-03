@@ -1,5 +1,13 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './users.dto';
 import { UsersService } from './users.service';
 
@@ -14,7 +22,12 @@ export class UsersController {
   }
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto);
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('avatar'))
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @UploadedFile() avatar?: Express.Multer.File,
+  ) {
+    return this.usersService.createUser(createUserDto, avatar);
   }
 }

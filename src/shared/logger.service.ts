@@ -7,13 +7,12 @@ export class MyLogger implements LoggerService {
       levels: winston.config.syslog.levels,
       transports: [
         new winston.transports.Console({
-          level: 'info',
           format: winston.format.combine(
+            winston.format.colorize(),
             winston.format.timestamp({
               format: 'YY-MM-DD HH:mm:ss',
             }),
-            winston.format.json(),
-            winston.format.colorize(),
+            winston.format.simple(),
           ),
         }),
       ],
