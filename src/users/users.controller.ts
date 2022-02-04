@@ -18,7 +18,7 @@ export class UsersController {
 
   @Get()
   getAll() {
-    return this.usersService.users({});
+    return this.usersService.findAll();
   }
 
   @Post()
@@ -28,6 +28,6 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFile() avatar?: Express.Multer.File,
   ) {
-    return this.usersService.createUser(createUserDto, avatar);
+    return this.usersService.create(createUserDto, avatar);
   }
 }

@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
-import { PrismaService } from 'src/prisma.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { File, FileSchema } from 'src/schemas/file.schema';
 
 @Module({
+  imports: [
+    MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
+  ],
   controllers: [FilesController],
-  providers: [FilesService, PrismaService],
+  providers: [FilesService],
+  exports: [FilesService, MongooseModule],
 })
 export class FilesModule {}

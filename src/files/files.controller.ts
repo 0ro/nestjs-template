@@ -1,13 +1,15 @@
 import {
+  Body,
   Controller,
   Get,
+  Param,
   Post,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
-import { ApiMultiFile } from 'src/shared/decorators/api-multi-file.decorator';
+import { UploadFileDto } from './files.dto';
 import { FilesService } from './files.service';
 
 @Controller('files')
@@ -16,9 +18,9 @@ export class FilesController {
 
   @Post()
   @ApiConsumes('multipart/form-data')
-  @ApiMultiFile('files')
   @UseInterceptors(FilesInterceptor('files'))
   upload(
+    @Body() body: UploadFileDto,
     @UploadedFiles()
     files: Express.Multer.File[],
   ) {
@@ -28,5 +30,10 @@ export class FilesController {
   @Get()
   findAll() {
     return this.filesService.findAll();
+  }
+
+  @Get('/:id')
+  findById(@Param('id') id: string) {
+    return this.filesService.findById(id);
   }
 }

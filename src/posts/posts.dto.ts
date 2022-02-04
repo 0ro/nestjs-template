@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
 
-export class CreatePostDto implements Omit<Prisma.PostCreateInput, 'author'> {
+export class CreatePostDto {
   @ApiProperty({
     description: 'The title of the post.',
     example: 'My first post',
@@ -11,16 +10,24 @@ export class CreatePostDto implements Omit<Prisma.PostCreateInput, 'author'> {
   title: string;
 
   @ApiProperty({
-    type: Boolean,
-    example: false,
-    required: false,
+    description: 'The content of the post.',
+    example: 'This is my first post',
+    type: String,
+    required: true,
   })
-  published?: boolean;
+  content: string;
 
   @ApiProperty({
-    type: Number,
+    type: String,
     example: ``,
     required: true,
   })
-  authorId: number;
+  authorId: string;
+
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: false,
+  })
+  image?: never;
 }

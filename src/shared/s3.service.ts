@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
-import { randomUUID } from 'crypto';
 import { Schema } from 'src/config/env-schema';
 import { MyLogger } from './logger.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class S3Service {
@@ -21,7 +21,10 @@ export class S3Service {
         secretAccessKey: s3Config.secretAccessKey,
         region: s3Config.region,
       });
-      this.logger.log(`S3Service was initialized: ${JSON.stringify(s3Config)}`);
+      this.logger.log(
+        `S3Service was initialized: ${JSON.stringify(s3Config)}`,
+        'S3Service',
+      );
     } else {
       throw new Error('S3 configuration is missing');
     }
@@ -39,7 +42,7 @@ export class S3Service {
 
     const params: S3.PutObjectRequest = {
       Bucket: bucket,
-      Key: `${randomUUID()}-${fileName}`,
+      Key: `${uuidv4()}-${fileName}`,
       Body: body.buffer,
       ACL: 'private',
       CacheControl: 'max-age=31536000',

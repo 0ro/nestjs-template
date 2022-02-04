@@ -10,6 +10,8 @@ export type Schema = {
     region: string;
     bucket: string;
   };
+  DB_URL: string;
+  DB_NAME: string;
 };
 
 // NOTE: extending Joi with custom validators for accepting environment variables as object
@@ -48,6 +50,8 @@ const schema = Joi.object<Schema, true>({
     region: Joi.string().required(),
     bucket: Joi.string().required(),
   }).required(),
+  DB_URL: Joi.string().required(),
+  DB_NAME: Joi.string().required(),
 });
 
 export default schema;

@@ -1,42 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
-import { MyLogger } from 'src/shared/logger.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { File, FileDocument } from 'src/schemas/file.schema';
 import { S3Service } from 'src/shared/s3.service';
 
 @Injectable()
 export class FilesService {
   constructor(
     private s3Service: S3Service,
-    private prisma: PrismaService,
-    private logger: MyLogger,
+    @InjectModel(File.name) private fileModel: Model<FileDocument>,
   ) {}
 
   async findAll() {
-    const files = await this.prisma.file.findMany();
+    const files = await this.fileModel.find();
 
     return files.map((file) => ({
-      ...file,
+      ...file.toJSON(),
       url: this.s3Service.read(file.path),
     }));
   }
 
-  async createFile(file: Express.Multer.File, path: string) {
-    return this.prisma.file.create({
-      data: {
-        name: file.originalname,
-        path,
-        size: file.size,
-        createdAt: new Date(),
-      },
+  async findById(id: string) {
+    const file = await this.fileModel.findById(id);
+
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+
+    return {
+      ...file.toJSON(),
+      url: this.s3Service.read(file.path),
+    };
+  }
+
+  async create(file: Express.Multer.File, path: string) {
+    return this.fileModel.create({
+      ...file,
+      name: file.originalname,
+      size: file.size,
+      path,
     });
   }
 
   async uploadFile(file: Express.Multer.File) {
     const { Key } = await this.s3Service.upload(file.originalname, file);
-
-    const createdFile = await this.createFile(file, Key);
-
-    return { url: this.s3Service.read(Key), ...createdFile };
+    return this.create(file, Key);
   }
 
   async uploadFiles(file: Express.Multer.File[]) {

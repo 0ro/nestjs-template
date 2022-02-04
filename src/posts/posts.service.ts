@@ -1,66 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { Post, Prisma } from '@prisma/client';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { FilesService } from 'src/files/files.service';
+import { Post, PostDocument } from 'src/schemas/posts.schema';
+import { UsersService } from 'src/users/users.service';
 import { CreatePostDto } from './posts.dto';
 
 @Injectable()
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<PostDocument>,
+    private readonly usersService: UsersService,
+    private readonly filesService: FilesService,
+  ) {}
 
-  async post(
-    postWhereUniqueInput: Prisma.PostWhereUniqueInput,
-  ): Promise<Post | null> {
-    return this.prisma.post.findUnique({
-      where: postWhereUniqueInput,
-    });
+  findAll() {
+    return this.postModel.find().populate('author', 'image');
   }
 
-  async posts(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.PostWhereUniqueInput;
-    where?: Prisma.PostWhereInput;
-    orderBy?: Prisma.PostOrderByWithRelationInput;
-  }): Promise<Post[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.post.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-    });
-  }
+  async create(data: CreatePostDto, file?: Express.Multer.File): Promise<Post> {
+    const [author, image] = await Promise.all([
+      this.usersService.findById(data.authorId),
+      file ? this.filesService.uploadFile(file) : null,
+    ]);
 
-  async createPost(data: CreatePostDto): Promise<Post> {
-    const author = {
-      connect: {
-        id: data.authorId,
-      },
-    };
-    const { authorId, ...body } = data;
-    return this.prisma.post.create({
-      data: {
-        ...body,
-        author,
-      },
-    });
-  }
-
-  async updatePost(params: {
-    where: Prisma.PostWhereUniqueInput;
-    data: Prisma.PostUpdateInput;
-  }): Promise<Post> {
-    const { data, where } = params;
-    return this.prisma.post.update({
-      data,
-      where,
-    });
-  }
-
-  async deletePost(where: Prisma.PostWhereUniqueInput): Promise<Post> {
-    return this.prisma.post.delete({
-      where,
+    return this.postModel.create({
+      title: data.title,
+      content: data.content,
+      image,
+      author: author,
     });
   }
 }

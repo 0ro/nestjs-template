@@ -1,96 +1,39 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './users.dto';
 import { FilesService } from '../files/files.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User, UserDocument } from 'src/schemas/user.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private prisma: PrismaService,
     private filesService: FilesService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
-  async user(
-    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: userWhereUniqueInput,
-    });
+  findAll() {
+    return this.userModel.find().populate('avatar');
   }
 
-  async users(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.UserWhereUniqueInput;
-    where?: Prisma.UserWhereInput;
-    orderBy?: Prisma.UserOrderByWithRelationInput;
-  }): Promise<User[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.user.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-      include: {
-        posts: {
-          where: {
-            published: false,
-          },
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-      },
-    });
+  async findById(id: string) {
+    const user = this.userModel.findById(id).populate('avatar', 'post');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
-  async createUser(
+  async create(
     data: CreateUserDto,
     avatar?: Express.Multer.File,
   ): Promise<User> {
     const file = avatar ? await this.filesService.uploadFile(avatar) : null;
-    const user = await this.prisma.user.create({
-      include: {
-        posts: true,
-        profile: {
-          include: {
-            avatar: true,
-          },
-        },
-      },
-      data: {
-        profile: {
-          create: {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            avatar: {
-              connect: file ? { id: file.id } : void 0,
-            },
-          },
-        },
-      },
+    const user = await this.userModel.create({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      avatar: file,
     });
-
     return user;
-  }
-
-  async updateUser(params: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  }): Promise<User> {
-    const { where, data } = params;
-    return this.prisma.user.update({
-      data,
-      where,
-    });
-  }
-
-  async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user.delete({
-      where,
-    });
   }
 }

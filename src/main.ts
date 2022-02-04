@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { Schema } from './config/env-schema';
-import { PrismaService } from './prisma.service';
 import { MyLogger } from './shared/logger.service';
 import * as morgan from 'morgan';
 
@@ -37,12 +36,8 @@ async function bootstrap() {
 
   SwaggerModule.setup(apiPrefix, app, document);
 
-  // Prisma
-  const prismaService: PrismaService = app.get(PrismaService);
-  prismaService.enableShutdownHooks(app);
-
   await app.listen(port);
-  logger.log(`Swagger is running on http://localhost:${port}/api`);
+  // logger.log(`Swagger is running on http://localhost:${port}/api`);
 
   return app;
 }
