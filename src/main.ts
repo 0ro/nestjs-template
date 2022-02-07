@@ -19,10 +19,10 @@ async function bootstrap() {
   app.useLogger(logger);
 
   app.use(
-    morgan('short', {
+    morgan('tiny', {
       stream: {
         write(data: string) {
-          logger.log(data);
+          logger.log(data.replace(/\n$/, ''), 'Morgan');
         },
       },
     }),

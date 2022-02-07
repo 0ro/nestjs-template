@@ -8,10 +8,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from 'src/dto/common.dto';
 import { UploadFileDto } from './files.dto';
 import { FilesService } from './files.service';
 
+@ApiTags('files')
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
@@ -28,8 +30,8 @@ export class FilesController {
   }
 
   @Get()
-  findAll() {
-    return this.filesService.findAll();
+  findAll(@Param() params: PaginationDto) {
+    return this.filesService.findAll(params);
   }
 
   @Get('/:id')

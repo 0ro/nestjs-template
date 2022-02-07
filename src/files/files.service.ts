@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PaginationDto } from 'src/dto/common.dto';
 import { File, FileDocument } from 'src/schemas/file.schema';
 import { S3Service } from 'src/shared/s3.service';
 
@@ -11,8 +12,11 @@ export class FilesService {
     @InjectModel(File.name) private fileModel: Model<FileDocument>,
   ) {}
 
-  async findAll() {
-    const files = await this.fileModel.find();
+  async findAll(filters: PaginationDto) {
+    const files = await this.fileModel.find({
+      offset: filters.offset,
+      limit: filters.limit,
+    });
 
     return files.map((file) => ({
       ...file.toJSON(),
@@ -49,5 +53,16 @@ export class FilesService {
 
   async uploadFiles(file: Express.Multer.File[]) {
     return Promise.all(file.map((f) => this.uploadFile(f)));
+  }
+
+  async delete(fileValue: string | FileDocument) {
+    const file =
+      typeof fileValue === 'string'
+        ? await this.fileModel.findById(fileValue)
+        : fileValue;
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+    return this.s3Service.delete(file.path);
   }
 }

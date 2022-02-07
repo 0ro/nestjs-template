@@ -70,4 +70,15 @@ export class S3Service {
 
     return url;
   }
+
+  delete(key: string) {
+    const bucket = this.s3Configuration.bucket;
+
+    const params = {
+      Bucket: bucket,
+      Key: key,
+    };
+
+    return this.s3.deleteObject(params).promise();
+  }
 }

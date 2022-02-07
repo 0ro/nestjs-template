@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PaginationDto } from 'src/dto/common.dto';
 import { FilesService } from 'src/files/files.service';
 import { Post, PostDocument } from 'src/schemas/posts.schema';
 import { UsersService } from 'src/users/users.service';
-import { CreatePostDto } from './posts.dto';
+import { CreatePostDto, UpdatePostDto } from './posts.dto';
 
 @Injectable()
 export class PostsService {
@@ -14,8 +15,14 @@ export class PostsService {
     private readonly filesService: FilesService,
   ) {}
 
-  findAll() {
-    return this.postModel.find().populate('author', 'image');
+  findAll(options: PaginationDto) {
+    return this.postModel
+      .find({
+        offset: options.offset,
+        limit: options.limit,
+      })
+      .populate('author')
+      .populate('image');
   }
 
   async create(data: CreatePostDto, file?: Express.Multer.File): Promise<Post> {
@@ -30,5 +37,34 @@ export class PostsService {
       image,
       author: author,
     });
+  }
+
+  async update(
+    postId: string,
+    data: UpdatePostDto,
+    file?: Express.Multer.File,
+  ) {
+    let image;
+    try {
+      image = file ? await this.filesService.uploadFile(file) : null;
+      const updatedPost = await this.postModel.findByIdAndUpdate(
+        {
+          _id: postId,
+        },
+        {
+          ...data,
+          image,
+        },
+        {
+          new: true,
+        },
+      );
+
+      return updatedPost;
+    } catch {
+      if (image) {
+        await this.filesService.delete(image.path);
+      }
+    }
   }
 }
