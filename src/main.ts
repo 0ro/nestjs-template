@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { Schema } from './config/env-schema';
 import { MyLogger } from './shared/logger.service';
 import * as morgan from 'morgan';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -27,6 +28,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  // helmet middleware
+  app.use(helmet());
 
   // Swagger
   const config = new DocumentBuilder().setVersion('1.0').build();
