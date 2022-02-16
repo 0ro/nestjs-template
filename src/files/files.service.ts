@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PaginationDto } from 'src/dto/common.dto';
+import { ApiException, CODES } from 'src/http-exception.filter';
 import { File, FileDocument } from 'src/schemas/file.schema';
 import { S3Service } from 'src/shared/s3.service';
 
@@ -13,10 +14,12 @@ export class FilesService {
   ) {}
 
   async findAll(filters: PaginationDto) {
-    const files = await this.fileModel.find({
-      offset: filters.offset,
-      limit: filters.limit,
-    });
+    const files = await this.fileModel
+      .find({
+        offset: filters.offset,
+        limit: filters.limit,
+      })
+      .exec();
 
     return files.map((file) => ({
       ...file.toJSON(),
@@ -25,10 +28,10 @@ export class FilesService {
   }
 
   async findById(id: string) {
-    const file = await this.fileModel.findById(id);
+    const file = await this.fileModel.findById(id).exec();
 
     if (!file) {
-      throw new NotFoundException('File not found');
+      throw new ApiException(CODES.SERVER.NOT_FOUND, 'File not found', 404);
     }
 
     return {
@@ -58,7 +61,7 @@ export class FilesService {
   async delete(fileValue: string | FileDocument) {
     const file =
       typeof fileValue === 'string'
-        ? await this.fileModel.findById(fileValue)
+        ? await this.fileModel.findById(fileValue).exec()
         : fileValue;
     if (!file) {
       throw new NotFoundException('File not found');

@@ -47,20 +47,21 @@ export class PostsService {
     let image;
     try {
       image = file ? await this.filesService.uploadFile(file) : null;
-      const updatedPost = await this.postModel.findByIdAndUpdate(
-        {
-          _id: postId,
-        },
-        {
-          ...data,
-          image,
-        },
-        {
-          new: true,
-        },
-      );
 
-      return updatedPost;
+      return this.postModel
+        .findByIdAndUpdate(
+          {
+            _id: postId,
+          },
+          {
+            ...data,
+            image,
+          },
+          {
+            new: true,
+          },
+        )
+        .exec();
     } catch {
       if (image) {
         await this.filesService.delete(image.path);

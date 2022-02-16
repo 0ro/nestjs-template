@@ -12,6 +12,9 @@ export type Schema = {
   };
   DB_URL: string;
   DB_NAME: string;
+  MULTER: {
+    fileSize: number;
+  };
 };
 
 // NOTE: extending Joi with custom validators for accepting environment variables as object
@@ -52,6 +55,11 @@ const schema = Joi.object<Schema, true>({
   }).required(),
   DB_URL: Joi.string().required(),
   DB_NAME: Joi.string().required(),
+  MULTER: JoiCustom.object({
+    fileSize: Joi.number().required(),
+  }).default({
+    fileSize: 10,
+  }),
 });
 
 export default schema;

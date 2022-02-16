@@ -37,10 +37,9 @@ async function bootstrap() {
   SwaggerModule.setup(apiPrefix, app, document);
 
   await app.listen(port);
-  // logger.log(`Swagger is running on http://localhost:${port}/api`);
+  logger.log(`Swagger is running on http://localhost:${port}/api`, 'Swagger');
 
   return app;
 }
-const app = bootstrap();
 
-export default app;
+export default bootstrap();

@@ -8,6 +8,9 @@ import { PostsModule } from './posts/posts.module';
 import { FilesModule } from './files/files.module';
 import { SharedModule } from './shared/shared.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './http-exception.filter';
 
 @Module({
   imports: [
@@ -32,8 +35,15 @@ import { MongooseModule } from '@nestjs/mongoose';
     UsersModule,
     PostsModule,
     SharedModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
