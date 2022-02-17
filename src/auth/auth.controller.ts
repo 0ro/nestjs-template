@@ -1,5 +1,6 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 
 import { LocalAuthGuard } from './local-auth.guard';
 import { LoginDto } from './auth.dto';
@@ -15,8 +16,20 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('/login')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async login(@CurrentUser() user: User, @Body() body: LoginDto) {
-    return this.authService.login(user);
+  async login(
+    @CurrentUser() user: User,
+    @Body() _: LoginDto,
+    @Res() response: Response,
+  ) {
+    const cookie = this.authService.getAuthCookie(user);
+    response.setHeader('Set-Cookie', cookie);
+    return response.send(user);
+  }
+
+  @Post('/logout')
+  async logout(@Res() response: Response) {
+    const cookie = this.authService.getCookieForLogOut();
+    response.setHeader('Set-Cookie', cookie);
+    return response.send();
   }
 }

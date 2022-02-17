@@ -21,5 +21,4 @@ export class LoginDto {
 
 export class JwtPayload {
   userId: string;
-  email: string;
 }

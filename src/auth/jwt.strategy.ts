@@ -7,7 +7,6 @@ import { JwtPayload } from './auth.dto';
 
 import { Schema } from 'src/config/env-schema';
 import { UsersService } from 'src/users/users.service';
-import { ApiException, CODES } from 'src/http-exception.filter';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -16,17 +15,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly usersService: UsersService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) => {
+          return request?.cookies?.Authentication;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: configService.get<Schema['JWT']>('JWT')?.secret,
     });
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.usersService.findById(payload.userId);
-    if (!user) {
-      throw new ApiException(CODES.SERVER.NOT_FOUND, 'User not found', 404);
-    }
-    return user;
+    return await this.usersService.findById(payload.userId);
   }
 }

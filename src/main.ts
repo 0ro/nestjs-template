@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as morgan from 'morgan';
+import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module';
@@ -29,6 +30,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  // cookie parser
+  app.use(cookieParser());
 
   // helmet middleware
   app.use(helmet());
