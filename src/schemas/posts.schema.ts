@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongoSchema } from 'mongoose';
-import { File } from 'src/schemas/file.schema';
+
 import { User } from './user.schema';
+
+import { File } from 'src/schemas/file.schema';
 
 export type PostDocument = Post & Document;
 

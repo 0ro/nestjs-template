@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
-import { Schema } from 'src/config/env-schema';
-import { MyLogger } from './logger.service';
 import { v4 as uuidv4 } from 'uuid';
+
+import { MyLogger } from './logger.service';
+
+import { Schema } from 'src/config/env-schema';
 
 @Injectable()
 export class S3Service {

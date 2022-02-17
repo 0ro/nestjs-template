@@ -1,5 +1,3 @@
-import { MyLogger } from './shared/logger.service';
-
 import {
   ExceptionFilter,
   Catch,
@@ -8,6 +6,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+
+import { MyLogger } from './shared/logger.service';
 
 export const CODES = {
   SERVER: {

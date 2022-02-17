@@ -1,7 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongoSchema } from 'mongoose';
-import { File } from 'src/schemas/file.schema';
+import * as bcrypt from 'bcrypt';
+
 import { Post } from './posts.schema';
+
+import { File } from 'src/schemas/file.schema';
 
 export type UserDocument = User & Document;
 
@@ -23,11 +26,28 @@ export class User {
   @Prop()
   lastName: string;
 
+  @Prop()
+  email: string;
+
+  @Prop()
+  passwordHash: string;
+
   @Prop({ type: MongoSchema.Types.ObjectId, ref: 'File' })
   avatar: File;
 
   @Prop({ type: MongoSchema.Types.ObjectId, ref: 'Post' })
   posts: Post[];
+
+  comparePassword: (password: string) => Promise<boolean>;
+
+  static async hashPassword(password: string) {
+    const salt = await bcrypt.genSalt();
+    return bcrypt.hash(password, salt);
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.methods.comparePassword = function (password: string) {
+  return bcrypt.compare(password, this.passwordHash);
+};

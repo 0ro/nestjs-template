@@ -10,9 +10,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { FindOneDto, PaginationDto } from 'src/dto/common.dto';
+
 import { CreatePostDto, UpdatePostDto } from './posts.dto';
 import { PostsService } from './posts.service';
+
+import { FindOneDto, PaginationDto } from 'src/dto/common.dto';
 
 @ApiTags('posts')
 @Controller('posts')

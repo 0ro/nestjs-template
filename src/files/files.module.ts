@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
-import { MongooseModule } from '@nestjs/mongoose';
+
 import { File, FileSchema } from 'src/schemas/file.schema';
 
 @Module({

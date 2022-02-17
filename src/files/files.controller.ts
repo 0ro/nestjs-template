@@ -9,9 +9,11 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { PaginationDto } from 'src/dto/common.dto';
+
 import { UploadFileDto } from './files.dto';
 import { FilesService } from './files.service';
+
+import { PaginationDto } from 'src/dto/common.dto';
 
 @ApiTags('files')
 @Controller('files')

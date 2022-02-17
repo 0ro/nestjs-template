@@ -1,11 +1,12 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as morgan from 'morgan';
+import helmet from 'helmet';
+
 import { AppModule } from './app.module';
 import { Schema } from './config/env-schema';
 import { MyLogger } from './shared/logger.service';
-import * as morgan from 'morgan';
-import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
