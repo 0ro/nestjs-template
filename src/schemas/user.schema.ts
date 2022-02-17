@@ -38,6 +38,8 @@ export class User {
   @Prop({ type: MongoSchema.Types.ObjectId, ref: 'Post' })
   posts: Post[];
 
+  id: string;
+
   comparePassword: (password: string) => Promise<boolean>;
 
   static async hashPassword(password: string) {

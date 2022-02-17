@@ -16,6 +16,10 @@ export type Schema = {
   MULTER: {
     fileSize: number;
   };
+  JWT: {
+    secret: string;
+    expiresIn: string;
+  };
 };
 
 // NOTE: extending Joi with custom validators for accepting environment variables as object
@@ -60,6 +64,13 @@ const schema = Joi.object<Schema, true>({
     fileSize: Joi.number().required(),
   }).default({
     fileSize: 10,
+  }),
+  JWT: JoiCustom.object({
+    secret: Joi.string().required(),
+    expiresIn: Joi.string().required(),
+  }).default({
+    secret: 'secret',
+    expiresIn: '300s',
   }),
 });
 

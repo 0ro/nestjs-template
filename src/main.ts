@@ -34,7 +34,10 @@ async function bootstrap() {
   app.use(helmet());
 
   // Swagger
-  const config = new DocumentBuilder().setVersion('1.0').build();
+  const config = new DocumentBuilder()
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
   const document = SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
   });

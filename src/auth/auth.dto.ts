@@ -18,3 +18,8 @@ export class LoginDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class JwtPayload {
+  userId: string;
+  email: string;
+}
