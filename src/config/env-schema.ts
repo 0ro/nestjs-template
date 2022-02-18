@@ -1,4 +1,3 @@
-/* eslint-disable import/namespace */
 import * as Joi from 'joi';
 
 export type Schema = {
@@ -16,10 +15,7 @@ export type Schema = {
   MULTER: {
     fileSize: number;
   };
-  JWT: {
-    secret: string;
-    expiresIn: string;
-  };
+  SESSION_SECRET: string;
 };
 
 // NOTE: extending Joi with custom validators for accepting environment variables as object
@@ -65,13 +61,7 @@ const schema = Joi.object<Schema, true>({
   }).default({
     fileSize: 10,
   }),
-  JWT: JoiCustom.object({
-    secret: Joi.string().required(),
-    expiresIn: Joi.string().required(),
-  }).default({
-    secret: 'secret',
-    expiresIn: '300s',
-  }),
+  SESSION_SECRET: Joi.string().required(),
 });
 
 export default schema;

@@ -8,20 +8,19 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 import { CreateUserDto } from './users.dto';
 import { UsersService } from './users.service';
 
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CookieAuthGuard } from 'src/auth/cookie-auth.guard';
 
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(CookieAuthGuard)
   @Get()
   getAll() {
     return this.usersService.findAll();

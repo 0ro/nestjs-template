@@ -4,6 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as morgan from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import * as session from 'express-session';
+import * as passport from 'passport';
 
 import { AppModule } from './app.module';
 import { Schema } from './config/env-schema';
@@ -16,10 +18,14 @@ async function bootstrap() {
   const configService: ConfigService<Schema> = app.get(ConfigService);
   const port = configService.get('PORT');
   const apiPrefix = configService.get('API_PREFIX');
+  const sessionSecret = configService.get('SESSION_SECRET');
 
   // logging middleware
   const logger = new MyLogger();
   app.useLogger(logger);
+
+  // helmet middleware
+  app.use(helmet());
 
   app.use(
     morgan('tiny', {
@@ -31,11 +37,19 @@ async function bootstrap() {
     }),
   );
 
-  // cookie parser
   app.use(cookieParser());
 
-  // helmet middleware
-  app.use(helmet());
+  app.use(
+    session({
+      // TODO: add redis session store
+      secret: sessionSecret,
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
+
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   // Swagger
   const config = new DocumentBuilder()

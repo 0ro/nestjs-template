@@ -19,7 +19,8 @@ module.exports = {
   ignorePatterns: ['.eslintrc.js'],
   rules: {
     '@typescript-eslint/no-explicit-any': 2,
-    'import/order': ['error', {'newlines-between': 'always'}],
+    'import/order': [2, {'newlines-between': 'always'}],
+    'import/namespace': 0, // https://github.com/import-js/eslint-plugin-import/issues/1845
     'import/no-unresolved': 2,
     'import/no-dynamic-require': 2,
     'import/no-mutable-exports': 2,
