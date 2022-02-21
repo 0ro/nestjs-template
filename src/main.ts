@@ -6,6 +6,8 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import * as session from 'express-session';
 import * as passport from 'passport';
+import * as csurf from 'csurf';
+import { Request, Response } from 'express';
 
 import { AppModule } from './app.module';
 import { Schema } from './config/env-schema';
@@ -48,19 +50,50 @@ async function bootstrap() {
     }),
   );
 
+  // csrf protection
+  app.use(
+    csurf({
+      cookie: true,
+    }),
+  );
+
+  app.use('*', function (req: Request, res: Response, next: () => void) {
+    const CSRF_TOKEN_HEADER = 'X-CSRF-TOKEN';
+    if (!req.cookies[CSRF_TOKEN_HEADER]) {
+      res.cookie(CSRF_TOKEN_HEADER, req.csrfToken());
+    }
+    next();
+  });
+
+  // passport initialization
   app.use(passport.initialize());
   app.use(passport.session());
 
   // Swagger
-  const config = new DocumentBuilder()
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  const config = new DocumentBuilder().setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
   });
 
-  SwaggerModule.setup(apiPrefix, app, document);
+  SwaggerModule.setup(apiPrefix, app, document, {
+    swaggerOptions: {
+      // will be invoked in the browser scope
+      requestInterceptor: (req: Request) => {
+        // add csrf token to the request
+        function getCookie(name: string) {
+          const cookie = window.document.cookie;
+          const value = `; ${cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) {
+            return parts.pop()?.split(';').shift();
+          }
+        }
+        const CSRF_TOKEN_HEADER = 'X-CSRF-TOKEN';
+        req.headers[CSRF_TOKEN_HEADER] = getCookie(CSRF_TOKEN_HEADER);
+        return req;
+      },
+    },
+  });
 
   await app.listen(port);
   logger.log(`Swagger is running on http://localhost:${port}/api`, 'Swagger');

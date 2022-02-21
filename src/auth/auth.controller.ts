@@ -16,14 +16,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
-  @Post('/login')
+  @Post('/log-in')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async login(@CurrentUser() user: User, @Body() body: LoginDto) {
     return user;
   }
 
   @UseGuards(CookieAuthGuard)
-  @Post('/logout')
+  @Post('/log-out')
   async logout(@Req() request: Request, @Res() response: Response) {
     request.logout();
     request.session.cookie.maxAge = 0;
