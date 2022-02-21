@@ -2,10 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { PaginationDto } from 'src/dto/common.dto';
-import { ApiException, CODES } from 'src/http-exception.filter';
-import { File, FileDocument } from 'src/schemas/file.schema';
-import { S3Service } from 'src/shared/s3.service';
+import { PaginationDto } from '../dto/common.dto';
+import { ApiException, CODES } from '../http-exception.filter';
+import { File, FileDocument } from '../schemas/file.schema';
+import { S3Service } from '../shared/s3.service';
 
 @Injectable()
 export class FilesService {

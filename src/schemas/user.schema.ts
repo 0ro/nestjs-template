@@ -3,8 +3,7 @@ import { Document, Schema as MongoSchema } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
 import { Post } from './posts.schema';
-
-import { File } from 'src/schemas/file.schema';
+import { File } from './file.schema';
 
 export type UserDocument = User & Document;
 
@@ -27,7 +26,9 @@ export class User {
   @Prop()
   lastName: string;
 
-  @Prop()
+  @Prop({
+    unique: true,
+  })
   email: string;
 
   @Prop()
