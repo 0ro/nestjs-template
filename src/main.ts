@@ -6,21 +6,25 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import * as session from 'express-session';
 import * as passport from 'passport';
+import * as connectRedis from 'connect-redis';
 import * as csurf from 'csurf';
 import { Request, Response } from 'express';
 
 import { AppModule } from './app.module';
-import { Schema } from './config/env-schema';
+import { Schema, NodeEnv } from './config/env-schema';
 import { MyLogger } from './shared/logger.service';
+import { REDIS } from './redis/redis.constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });
   const configService: ConfigService<Schema> = app.get(ConfigService);
+  const env = configService.get<Schema['NODE_ENV']>('NODE_ENV');
   const port = configService.get('PORT');
   const apiPrefix = configService.get('API_PREFIX');
   const sessionSecret = configService.get('SESSION_SECRET');
+  const RedisStore = connectRedis(session);
 
   // logging middleware
   const logger = new MyLogger();
@@ -43,10 +47,16 @@ async function bootstrap() {
 
   app.use(
     session({
-      // TODO: add redis session store
+      store: new RedisStore({
+        client: app.get(REDIS),
+      }),
       secret: sessionSecret,
       resave: false,
       saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: env === NodeEnv.Production ? true : false,
+      },
     }),
   );
 

@@ -1,7 +1,13 @@
 import * as Joi from 'joi';
 
+export enum NodeEnv {
+  Development = 'development',
+  Production = 'production',
+  Test = 'test',
+}
+
 export type Schema = {
-  NODE_ENV: string;
+  NODE_ENV: NodeEnv;
   PORT: number;
   API_PREFIX: string;
   AWS: {
@@ -16,6 +22,10 @@ export type Schema = {
     fileSize: number;
   };
   SESSION_SECRET: string;
+  REDIS: {
+    host: string;
+    port: number;
+  };
 };
 
 // NOTE: extending Joi with custom validators for accepting environment variables as object
@@ -44,8 +54,8 @@ const JoiCustom = Joi.extend({
 
 const schema = Joi.object<Schema, true>({
   NODE_ENV: Joi.string()
-    .valid('development', 'production', 'test')
-    .default('development'),
+    .valid(NodeEnv.Development, NodeEnv.Production, NodeEnv.Test)
+    .default(NodeEnv.Development),
   PORT: Joi.number().default(3000),
   API_PREFIX: Joi.string().default('api'),
   AWS: JoiCustom.object({
@@ -62,6 +72,13 @@ const schema = Joi.object<Schema, true>({
     fileSize: 10,
   }),
   SESSION_SECRET: Joi.string().required(),
+  REDIS: JoiCustom.object({
+    host: Joi.string().required(),
+    port: Joi.number().required(),
+  }).default({
+    host: 'localhost',
+    port: 6379,
+  }),
 });
 
 export default schema;

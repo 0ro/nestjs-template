@@ -13,6 +13,7 @@ import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 import { HttpExceptionFilter } from './http-exception.filter';
 import validationPipe from './validation.pipe';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import validationPipe from './validation.pipe';
     PostsModule,
     SharedModule,
     AuthModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [
