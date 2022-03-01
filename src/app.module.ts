@@ -28,9 +28,15 @@ import { RedisModule } from './redis/redis.module';
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService<Schema>) => {
+        const user = configService.get<Schema['DB_USER']>('DB_USER');
+        const password = configService.get<Schema['DB_PWD']>('DB_PWD');
+        const host = configService.get<Schema['DB_HOST']>('DB_HOST');
+        const port = configService.get<Schema['DB_PORT']>('DB_PORT');
+        const dbName = configService.get<Schema['DB_NAME']>('DB_NAME');
+        const uri = `mongodb://${user}:${password}@${host}:${port}`;
         return {
-          uri: configService.get('DB_URL'),
-          dbName: configService.get('DB_NAME'),
+          uri,
+          dbName,
         };
       },
     }),

@@ -12,10 +12,12 @@ import { MyLogger } from 'src/shared/logger.service';
     {
       provide: REDIS,
       useFactory: async (configService: ConfigService<Schema>) => {
-        const redisConfig = configService.get<Schema['REDIS']>('REDIS');
-        return redisConfig
+        const host = configService.get<Schema['REDIS_HOST']>('REDIS_HOST');
+        const port = configService.get<Schema['REDIS_PORT']>('REDIS_PORT');
+
+        return host && port
           ? Redis.createClient({
-              url: `redis://${redisConfig.host}:${redisConfig.port}`,
+              url: `redis://${host}:${port}`,
             })
           : null;
       },

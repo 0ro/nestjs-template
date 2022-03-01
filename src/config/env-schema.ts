@@ -1,33 +1,5 @@
 import * as Joi from 'joi';
 
-export enum NodeEnv {
-  Development = 'development',
-  Production = 'production',
-  Test = 'test',
-}
-
-export type Schema = {
-  NODE_ENV: NodeEnv;
-  PORT: number;
-  API_PREFIX: string;
-  AWS: {
-    accessKeyId: string;
-    secretAccessKey: string;
-    region: string;
-    bucket: string;
-  };
-  DB_URL: string;
-  DB_NAME: string;
-  MULTER: {
-    fileSize: number;
-  };
-  SESSION_SECRET: string;
-  REDIS: {
-    host: string;
-    port: number;
-  };
-};
-
 // NOTE: extending Joi with custom validators for accepting environment variables as object
 // see the stackoverflow answer: https://stackoverflow.com/a/70923498/13410760
 const JoiCustom = Joi.extend({
@@ -52,6 +24,35 @@ const JoiCustom = Joi.extend({
   },
 });
 
+export enum NodeEnv {
+  Development = 'development',
+  Production = 'production',
+  Test = 'test',
+}
+
+export type Schema = {
+  NODE_ENV: NodeEnv;
+  PORT: number;
+  API_PREFIX: string;
+  AWS: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    region: string;
+    bucket: string;
+  };
+  DB_USER: string;
+  DB_PWD: string;
+  DB_NAME: string;
+  DB_HOST: string;
+  DB_PORT: number;
+  MULTER: {
+    fileSize: number;
+  };
+  SESSION_SECRET: string;
+  REDIS_HOST: string;
+  REDIS_PORT: number;
+};
+
 const schema = Joi.object<Schema, true>({
   NODE_ENV: Joi.string()
     .valid(NodeEnv.Development, NodeEnv.Production, NodeEnv.Test)
@@ -64,21 +65,19 @@ const schema = Joi.object<Schema, true>({
     region: Joi.string().required(),
     bucket: Joi.string().required(),
   }).required(),
-  DB_URL: Joi.string().required(),
+  DB_USER: Joi.string().required(),
+  DB_PWD: Joi.string().required(),
   DB_NAME: Joi.string().required(),
+  DB_HOST: Joi.string().required(),
+  DB_PORT: Joi.number().required(),
   MULTER: JoiCustom.object({
     fileSize: Joi.number().required(),
   }).default({
     fileSize: 10,
   }),
   SESSION_SECRET: Joi.string().required(),
-  REDIS: JoiCustom.object({
-    host: Joi.string().required(),
-    port: Joi.number().required(),
-  }).default({
-    host: 'localhost',
-    port: 6379,
-  }),
+  REDIS_HOST: Joi.string().required(),
+  REDIS_PORT: Joi.number().required(),
 });
 
 export default schema;
