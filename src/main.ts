@@ -26,6 +26,11 @@ async function bootstrap() {
   const sessionSecret = configService.get('SESSION_SECRET');
   const RedisStore = connectRedis(session);
 
+  app.enableCors({
+    origin: process.env.WEB_APPLICATION_URL || '*',
+    credentials: true,
+  });
+
   // logging middleware
   const logger = new MyLogger();
   app.useLogger(logger);
